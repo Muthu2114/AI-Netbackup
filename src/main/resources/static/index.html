@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>NetBackup - Configuration Management</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Login -->
+  <div id="login-page">
+    <form id="login-form" class="login-box">
+      <h1>NetBackup</h1>
+      <p class="muted">Network configuration backup and version control</p>
+      <label>Username<input id="username" value="admin" required autocomplete="username"></label>
+      <label>Password<input id="password" type="password" value="admin123" required autocomplete="current-password"></label>
+      <div id="login-error" class="error"></div>
+      <button class="btn primary" type="submit">Sign in</button>
+      <p class="muted small">Demo accounts: admin / admin123, operator / operator123, viewer / viewer123</p>
+    </form>
+  </div>
+
+  <!-- App -->
+  <div id="app" hidden>
+    <aside>
+      <div class="brand">NetBackup</div>
+      <nav>
+        <a data-view="dashboard" class="active">Dashboard</a>
+        <a data-view="devices">Devices</a>
+        <a data-view="backups">Versions &amp; Compare</a>
+        <a data-view="users" data-role="ADMIN">Users</a>
+        <a data-view="audit" data-role="ADMIN">Audit log</a>
+      </nav>
+      <div class="who"><b id="who-name"></b><span id="who-role" class="badge info"></span>
+        <button id="pw-btn" class="btn ghost sm">Change password</button>
+        <button id="logout" class="btn ghost sm">Sign out</button></div>
+    </aside>
+    <main>
+      <header><h2 id="title"></h2><div id="header-actions"></div></header>
+      <section id="content"></section>
+    </main>
+  </div>
+
+  <div id="modal" hidden><div class="modal-box"><div id="modal-body"></div></div></div>
+  <div id="toast"></div>
+  <input type="file" id="file-input" accept=".cfg,.txt,.conf,.log" hidden>
+  <script src="app.js"></script>
+</body>
+</html>
