@@ -76,7 +76,7 @@ public final class WekaRandomForestModel {
     }
 
     private static Instances trainingData(Instances header) {
-        List<LabeledChange> examples = List.of(
+        List<LabeledChange> examples = new ArrayList<>(List.of(
                 change("ntp server 192.0.2.1", "ntp server 192.0.2.2", "LOW"),
                 change("logging host 192.0.2.10", "logging host 192.0.2.11", "LOW"),
                 change("interface GigabitEthernet0/1\n description Uplink", "interface GigabitEthernet0/1\n description Core uplink", "LOW"),
@@ -117,7 +117,12 @@ public final class WekaRandomForestModel {
                 change("no ip http server", "ip http server", "HIGH"),
                 change("ip ssh version 2", "no ip ssh", "HIGH"),
                 change("service password-encryption", "no service password-encryption", "HIGH")
-        );
+        ));
+        examples.add(change(
+                ConfigSimulator.generate("Core-Router-01", "10.0.1.1", 3),
+                ConfigSimulator.generate("Core-Router-01", "10.0.1.1", 1),
+                "HIGH"));
+        addAclDenyRemovalExamples(examples);
         Instances data = new Instances(header, examples.size());
         for (LabeledChange example : examples) {
             FeatureVector features = FeatureVector.extract(example.before, example.after);
@@ -126,6 +131,17 @@ public final class WekaRandomForestModel {
             data.add(new DenseInstance(1.0, values));
         }
         return data;
+    }
+
+    private static void addAclDenyRemovalExamples(List<LabeledChange> examples) {
+        for (int port = 20; port < 40; port++) {
+            String before = "ip access-list extended EDGE-" + port + "\n"
+                    + " deny tcp any any eq " + port + "\n"
+                    + " permit ip any any\n";
+            String after = "ip access-list extended EDGE-" + port + "\n"
+                    + " permit ip any any\n";
+            examples.add(change(before, after, "HIGH"));
+        }
     }
 
     private static LabeledChange change(String before, String after, String label) {

@@ -23,6 +23,15 @@ class WekaRandomForestModelTest {
     }
 
     @Test
+    void predictsHighForAclDenyRemovalFromV3ToV1() {
+        String v3 = ConfigSimulator.generate("Core-Router-01", "10.0.1.1", 3);
+        String v1 = ConfigSimulator.generate("Core-Router-01", "10.0.1.1", 1);
+
+        assertEquals("HIGH", model.predict(v3, v1).riskLevel());
+        assertTrue(model.predict(v3, v1).keyChanges().contains("ACL deny rule removed"));
+    }
+
+    @Test
     void predictsHighForCriticalNetworkSecurityAndAvailabilityChanges() {
         assertEquals("HIGH", model.predict(
                 "interface GigabitEthernet0/0\n no shutdown\n",
@@ -52,5 +61,12 @@ class WekaRandomForestModelTest {
         assertEquals("LOW", model.predict(
                 "ntp server 192.0.2.1\n",
                 "ntp server 192.0.2.2\n").riskLevel());
+    }
+
+    @Test
+    void routineVlanOnlyChangeIsNotHighRisk() {
+        String risk = model.predict("vlan 10\n name Staff\n", "vlan 10\n name Employees\n").riskLevel();
+
+        assertTrue(risk.equals("LOW") || risk.equals("MEDIUM"));
     }
 }
